@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Layers, Zap, Shield } from 'lucide-react';
+import { useAuth } from '../contexts/useAuth';
 import ProductCard from '../components/ProductCard';
 import { getProducts, type Product } from '../lib/products';
 import { getCategories, type Category } from '../lib/categories';
@@ -9,6 +10,7 @@ import { withTimeout } from '../lib/async';
 import './HomePage.css';
 
 export default function HomePage() {
+    const { user } = useAuth();
     const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
@@ -208,25 +210,27 @@ export default function HomePage() {
             )}
 
             {/* CTA */}
-            <section className="cta-section section" id="cta-section">
-                <div className="container">
-                    <div className="cta-content">
-                        <div className="cta-glow" />
-                        <span className="label-md" style={{ color: 'var(--primary)' }}>
-                            The Digital Atelier
-                        </span>
-                        <h2 className="display-md">Ready to Start Your Collection?</h2>
-                        <p className="body-lg">
-                            Join the community of collectors who appreciate precision engineering
-                            and digital artistry.
-                        </p>
-                        <Link to="/signup" className="btn btn-primary btn-lg">
-                            Create Account
-                            <ArrowRight size={18} />
-                        </Link>
+            {!user && (
+                <section className="cta-section section" id="cta-section">
+                    <div className="container">
+                        <div className="cta-content">
+                            <div className="cta-glow" />
+                            <span className="label-md" style={{ color: 'var(--primary)' }}>
+                                The Digital Atelier
+                            </span>
+                            <h2 className="display-md">Ready to Start Your Collection?</h2>
+                            <p className="body-lg">
+                                Join the community of collectors who appreciate precision engineering
+                                and digital artistry.
+                            </p>
+                            <Link to="/signup" className="btn btn-primary btn-lg">
+                                Create Account
+                                <ArrowRight size={18} />
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
         </div>
     );
 }
