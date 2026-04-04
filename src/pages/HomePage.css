@@ -132,8 +132,8 @@
     transition: transform var(--transition-base), background-color var(--transition-base);
     border: 1px solid rgba(236, 243, 234, 0.08);
     border-radius: 1.75rem;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .feature-card:hover {
@@ -199,8 +199,8 @@
     position: relative;
     border: 1px solid rgba(236, 243, 234, 0.08);
     border-radius: 1.75rem;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .category-card:hover {
@@ -235,8 +235,8 @@
     background: linear-gradient(180deg, rgba(8, 11, 10, 0.9), rgba(10, 14, 12, 0.78));
     border: 1px solid rgba(236, 243, 234, 0.08);
     border-radius: 2rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-shadow: var(--shadow-ambient);
     overflow: hidden;
 }

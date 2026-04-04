@@ -32,8 +32,8 @@
     background: linear-gradient(180deg, rgba(8, 11, 10, 0.9), rgba(10, 14, 12, 0.76));
     border: 1px solid rgba(236, 243, 234, 0.08);
     border-radius: 2rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-shadow: var(--shadow-ambient);
 }
 
