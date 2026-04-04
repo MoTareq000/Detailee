@@ -80,3 +80,34 @@
     font-weight: 600;
     color: var(--primary);
 }
+
+@media (max-width: 640px) {
+    .product-card-info {
+        padding: var(--space-3) var(--space-2) var(--space-2);
+        gap: var(--space-1);
+    }
+
+    .product-card-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .product-card-price {
+        font-size: 0.95rem;
+    }
+
+    .product-card-overlay {
+        display: none; /* Remove hover desktop effects on mobile */
+    }
+
+    .product-card-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-1);
+    }
+
+    .product-card-image-wrapper {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+}

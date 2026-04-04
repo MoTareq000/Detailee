@@ -22,6 +22,7 @@ import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import { getErrorMessage } from '../lib/errors';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { formatPrice } from '../lib/currency';
 import './AdminPage.css';
 
 type AdminTab = 'products' | 'orders' | 'categories';
@@ -486,7 +487,7 @@ export default function AdminPage() {
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <span className="label-sm">${product.price.toFixed(2)}</span>
+                                                    <span className="label-sm">{formatPrice(product.price)}</span>
                                                     <span className={`body-sm ${product.stock <= 0 ? 'error-text' : ''}`}>
                                                         {product.stock}
                                                     </span>
@@ -580,7 +581,7 @@ export default function AdminPage() {
                                                     </Select>
                                                     <div className="admin-order-summary">
                                                         <span className="admin-order-total">
-                                                            ${order.total_price.toFixed(2)}
+                                                            {formatPrice(order.total_price)}
                                                         </span>
                                                         <span className="body-sm">
                                                             Delivery to {order.city}

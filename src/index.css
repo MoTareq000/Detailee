@@ -176,7 +176,7 @@ h6 {
 
 .display-lg {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
@@ -184,7 +184,7 @@ h6 {
 
 .display-md {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.75rem, 4vw, 3rem);
   font-weight: 600;
   letter-spacing: -0.02em;
 }
@@ -283,10 +283,14 @@ h6 {
   transform: scale(0.97);
 }
 
-.btn-secondary {
-  background-color: rgba(236, 243, 234, 0.08);
-  color: var(--primary);
-  border: 1px solid rgba(236, 243, 234, 0.08);
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+.product-grid.stagger {
+  gap: var(--space-10) var(--space-8);
 }
 
 .btn-secondary:hover {
@@ -551,26 +555,18 @@ h6 {
 
 @media (max-width: 1024px) {
   :root {
-    --navbar-height: 64px;
+    --navbar-height: 56px;
   }
 
   body {
     background-attachment: scroll;
-    background-position: center top;
+    background-position: center 20%;
+    background-size: cover;
+    background-image:
+      linear-gradient(180deg, rgba(3, 5, 5, 0.35), rgba(3, 5, 5, 0.65)),
+      url('/images/BACKGROUND.png');
   }
 
-  .container {
-    padding-left: var(--space-4);
-    padding-right: var(--space-4);
-  }
-
-  .section {
-    padding-top: var(--space-12);
-    padding-bottom: var(--space-12);
-  }
-}
-
-@media (max-width: 640px) {
   .container {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
@@ -579,5 +575,32 @@ h6 {
   .section {
     padding-top: var(--space-8);
     padding-bottom: var(--space-8);
+  }
+
+  .glass {
+    background: rgba(14, 18, 16, 0.65);
+    border: 1px solid rgba(236, 243, 234, 0.08);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+
+  .section {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3) var(--space-2);
   }
 }

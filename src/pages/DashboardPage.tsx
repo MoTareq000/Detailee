@@ -5,6 +5,7 @@ import { getUserOrders, type Order } from '../lib/orders';
 import { updateProfile } from '../lib/profiles';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
+import { formatPrice } from '../lib/currency';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -127,7 +128,7 @@ export default function DashboardPage() {
                                                 </span>
                                             </div>
                                             <span className="headline-sm" style={{ color: 'var(--primary)' }}>
-                                                ${order.total_price.toFixed(2)}
+                                                {formatPrice(order.total_price)}
                                             </span>
                                         </div>
                                         <div className="order-card-meta">

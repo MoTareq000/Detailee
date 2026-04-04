@@ -273,9 +273,17 @@
 }
 
 @media (max-width: 768px) {
+    .shop-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+        margin-bottom: var(--space-6);
+    }
+
     .shop-filters {
         flex-direction: column;
         align-items: stretch;
+        gap: var(--space-4);
     }
 
     .search-wrapper {
@@ -285,6 +293,7 @@
     .filter-controls {
         flex-direction: column;
         align-items: stretch;
+        gap: var(--space-3);
     }
 
     .filter-group {

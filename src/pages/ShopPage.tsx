@@ -11,6 +11,7 @@ import {
 import ProductCard from '../components/ProductCard';
 import { getProducts, type Product } from '../lib/products';
 import { getCategories, type Category } from '../lib/categories';
+import { formatPrice } from '../lib/currency';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import './ShopPage.css';
@@ -43,15 +44,15 @@ function parsePriceValue(value: string) {
 
 function formatPriceLabel(minPrice?: number, maxPrice?: number) {
     if (typeof minPrice === 'number' && typeof maxPrice === 'number') {
-        return `$${minPrice.toFixed(2)} to $${maxPrice.toFixed(2)}`;
+        return `${formatPrice(minPrice)} to ${formatPrice(maxPrice)}`;
     }
 
     if (typeof minPrice === 'number') {
-        return `From $${minPrice.toFixed(2)}`;
+        return `From ${formatPrice(minPrice)}`;
     }
 
     if (typeof maxPrice === 'number') {
-        return `Up to $${maxPrice.toFixed(2)}`;
+        return `Up to ${formatPrice(maxPrice)}`;
     }
 
     return '';
@@ -370,11 +371,11 @@ export default function ShopPage() {
                                     <label className="price-popover-field">
                                         <span className="price-popover-label">Min Price</span>
                                         <div className="price-popover-input-row">
-                                            <span className="price-popover-prefix">$</span>
+                                            <span className="price-popover-prefix">EGP</span>
                                             <input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
+                                                step="1"
                                                 inputMode="decimal"
                                                 className="price-popover-input"
                                                 placeholder="0"
@@ -387,11 +388,11 @@ export default function ShopPage() {
                                     <label className="price-popover-field">
                                         <span className="price-popover-label">Max Price</span>
                                         <div className="price-popover-input-row">
-                                            <span className="price-popover-prefix">$</span>
+                                            <span className="price-popover-prefix">EGP</span>
                                             <input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
+                                                step="1"
                                                 inputMode="decimal"
                                                 className="price-popover-input"
                                                 placeholder="1000"

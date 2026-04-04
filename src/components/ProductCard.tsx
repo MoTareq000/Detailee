@@ -3,6 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
 import type { Product } from '../lib/products';
+import { formatPrice } from '../lib/currency';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -59,7 +60,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 )}
                 <h3 className="product-card-name">{product.name}</h3>
                 <div className="product-card-bottom">
-                    <span className="product-card-price">${product.price.toFixed(2)}</span>
+                    <span className="product-card-price">{formatPrice(product.price)}</span>
                     {product.stock <= 0 && (
                         <span className="badge badge-error">Sold Out</span>
                     )}

@@ -7,6 +7,7 @@ import { createOrder } from '../lib/orders';
 import { showToast } from '../components/toastStore';
 import { getErrorMessage } from '../lib/errors';
 import { withTimeout } from '../lib/async';
+import { formatPrice } from '../lib/currency';
 import './CheckoutPage.css';
 
 type CheckoutFormValues = {
@@ -208,7 +209,7 @@ export default function CheckoutPage() {
                                     ) : (
                                         <>
                                             <CreditCard size={18} />
-                                            Place Order - ${total.toFixed(2)}
+                                            Place Order - {formatPrice(total)}
                                         </>
                                     )}
                                 </button>
@@ -234,7 +235,7 @@ export default function CheckoutPage() {
                                             <span className="label-sm">Qty: {item.quantity}</span>
                                         </div>
                                         <span className="body-sm" style={{ color: 'var(--on-surface)', fontWeight: 600 }}>
-                                            ${((item.product?.price ?? 0) * item.quantity).toFixed(2)}
+                                            {formatPrice((item.product?.price ?? 0) * item.quantity)}
                                         </span>
                                     </div>
                                 ))}
@@ -242,7 +243,7 @@ export default function CheckoutPage() {
                             <div className="checkout-totals">
                                 <div className="checkout-total-row">
                                     <span>Subtotal</span>
-                                    <span>${total.toFixed(2)}</span>
+                                    <span>{formatPrice(total)}</span>
                                 </div>
                                 <div className="checkout-total-row">
                                     <span>Shipping</span>
@@ -250,7 +251,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="checkout-total-row checkout-grand-total">
                                     <span>Total</span>
-                                    <span>${total.toFixed(2)}</span>
+                                    <span>{formatPrice(total)}</span>
                                 </div>
                             </div>
                         </div>

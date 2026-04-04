@@ -1,6 +1,7 @@
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/useCart';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../lib/currency';
 import './CartDrawer.css';
 
 interface CartDrawerProps {
@@ -49,7 +50,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         <div className="cart-item-info">
                                             <h4 className="body-sm">{item.product?.name}</h4>
                                             <span className="label-sm">
-                                                ${(item.product?.price ?? 0).toFixed(2)}
+                                                {formatPrice(item.product?.price ?? 0)}
                                             </span>
                                             <div className="cart-item-qty">
                                                 <button
@@ -69,7 +70,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         </div>
                                         <div className="cart-item-actions">
                                             <span className="cart-item-total">
-                                                ${((item.product?.price ?? 0) * item.quantity).toFixed(2)}
+                                                {formatPrice((item.product?.price ?? 0) * item.quantity)}
                                             </span>
                                             <button
                                                 className="btn-icon btn-sm"
@@ -88,7 +89,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <div className="cart-total">
                                 <span className="body-md">Total</span>
                                 <span className="headline-sm" style={{ color: 'var(--primary)' }}>
-                                    ${total.toFixed(2)}
+                                    {formatPrice(total)}
                                 </span>
                             </div>
                             <Link

@@ -14,6 +14,7 @@ import {
 import { getProductById, type Product } from '../lib/products';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
+import { formatPrice } from '../lib/currency';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import './ProductDetailPage.css';
@@ -193,7 +194,7 @@ export default function ProductDetailPage() {
                         <h1 className="display-md product-title">{product.name}</h1>
 
                         <div className="product-price-row">
-                            <span className="product-price">${product.price.toFixed(2)}</span>
+                            <span className="product-price">{formatPrice(product.price)}</span>
                             {product.stock > 0 ? (
                                 <span className="badge badge-success">In Stock</span>
                             ) : (
@@ -259,7 +260,7 @@ export default function ProductDetailPage() {
                                     ) : (
                                         <>
                                             <ShoppingCart size={18} />
-                                            Add to Cart - ${(product.price * quantity).toFixed(2)}
+                                            Add to Cart - {formatPrice(product.price * quantity)}
                                         </>
                                     )}
                                 </button>
