@@ -1,0 +1,126 @@
+.dashboard-page {
+    padding-top: calc(var(--navbar-height) + var(--space-12));
+    min-height: 100vh;
+    padding-bottom: var(--space-16);
+}
+
+.dashboard-header {
+    margin-bottom: var(--space-10);
+}
+
+.dashboard-header>div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* Tabs */
+.dashboard-tabs {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+}
+
+.dashboard-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    background: transparent;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.dashboard-tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--on-surface);
+}
+
+.dashboard-tab.active {
+    background: rgba(143, 245, 255, 0.1);
+    color: var(--primary);
+}
+
+/* Orders */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.order-card {
+    padding: var(--space-6);
+    background: var(--surface-container-low);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    transition: background-color var(--transition-base);
+}
+
+.order-card:hover {
+    background: var(--surface-container);
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.order-card-header>div {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.order-card-meta {
+    display: flex;
+    gap: var(--space-6);
+}
+
+.order-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--on-surface-variant);
+}
+
+.order-items-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-top: var(--space-3);
+}
+
+.order-items-preview span {
+    color: var(--on-surface-variant);
+}
+
+/* Profile Form */
+.profile-form {
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.profile-form .btn {
+    align-self: flex-start;
+    margin-top: var(--space-4);
+}
+
+@media (max-width: 640px) {
+    .order-card-header {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .order-card-meta {
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+}

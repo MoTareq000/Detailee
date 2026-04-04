@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400" role="img" aria-labelledby="title desc">
+  <title id="title">Detailee hero figure</title>
+  <desc id="desc">Editorial-style abstract 3D figure illustration for the storefront hero section.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090a0c" />
+      <stop offset="100%" stop-color="#16191d" />
+    </linearGradient>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8ff5ff" />
+      <stop offset="100%" stop-color="#2fb4c5" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#8ff5ff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#8ff5ff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="1400" fill="url(#bg)" />
+  <circle cx="600" cy="420" r="310" fill="url(#glow)" opacity="0.45" />
+  <g stroke="#283038" stroke-width="8" fill="none" opacity="0.75">
+    <path d="M144 258h912" />
+    <path d="M112 482h976" />
+    <path d="M160 706h880" />
+    <path d="M208 930h784" />
+    <path d="M256 1154h688" />
+  </g>
+  <g transform="translate(275 135)">
+    <path d="M318 42c112 0 198 83 198 194 0 86-52 142-103 186l61 111c10 17 15 37 15 57v280c0 100-81 181-181 181h-31c-100 0-181-81-181-181V590c0-20 5-40 15-57l61-111C121 378 69 322 69 236 69 125 156 42 268 42h50z" fill="#0f1215" />
+    <path d="M318 74c92 0 164 66 164 158 0 63-35 108-89 149l-22 17 84 153c8 14 12 29 12 45v274c0 82-67 149-149 149h-50c-82 0-149-67-149-149V596c0-16 4-31 12-45l84-153-22-17c-54-41-89-86-89-149 0-92 72-158 164-158h50z" fill="#14191e" stroke="#2b343c" stroke-width="12" />
+    <path d="M259 152h68c75 0 135 61 135 136 0 38-14 71-40 99l-26 28-48 90H238l-48-90-26-28c-26-28-40-61-40-99 0-75 60-136 135-136z" fill="url(#core)" opacity="0.92" />
+    <path d="M189 642h218v228c0 50-40 90-90 90h-38c-50 0-90-40-90-90z" fill="#101417" stroke="#2a3239" stroke-width="10" />
+    <path d="M220 523h156l26 90H194z" fill="#c2fcff" opacity="0.15" />
+    <circle cx="248" cy="242" r="18" fill="#0f1215" />
+    <circle cx="338" cy="242" r="18" fill="#0f1215" />
+    <path d="M238 320c18 16 40 24 65 24s47-8 65-24" stroke="#0f1215" stroke-linecap="round" stroke-width="16" />
+  </g>
+  <g fill="#8ff5ff" opacity="0.35">
+    <circle cx="212" cy="1104" r="10" />
+    <circle cx="978" cy="268" r="14" />
+    <circle cx="964" cy="1032" r="9" />
+    <circle cx="244" cy="372" r="7" />
+  </g>
+</svg>

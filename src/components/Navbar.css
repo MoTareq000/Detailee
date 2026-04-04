@@ -1,0 +1,203 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--navbar-height);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(236, 243, 234, 0.08);
+    background: linear-gradient(180deg, rgba(4, 7, 6, 0.82), rgba(4, 7, 6, 0.56));
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    gap: var(--space-8);
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.navbar-logo:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+}
+
+.navbar-logo .brand-logo-mark-shell {
+    border-radius: 1.1rem;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.navbar-link {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: color var(--transition-fast);
+    position: relative;
+}
+
+.navbar-link:hover,
+.navbar-link.active {
+    color: var(--on-surface);
+}
+
+.navbar-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.navbar-cart {
+    position: relative;
+    color: var(--on-surface-variant);
+    transition: color var(--transition-fast);
+}
+
+.navbar-cart:hover {
+    color: var(--on-surface);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: 50%;
+}
+
+.navbar-avatar {
+    color: var(--on-surface-variant);
+    transition: color var(--transition-fast);
+}
+
+.navbar-avatar:hover {
+    color: var(--on-surface);
+}
+
+.profile-menu-wrapper {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    min-width: 220px;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    animation: fadeIn 0.2s ease;
+    z-index: 1001;
+    border: 1px solid rgba(236, 243, 234, 0.1);
+    background: linear-gradient(180deg, rgba(9, 12, 11, 0.94), rgba(8, 10, 9, 0.88));
+    box-shadow: var(--shadow-ambient);
+}
+
+.profile-dropdown-header {
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.profile-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--on-surface-variant);
+    transition: all var(--transition-fast);
+    width: 100%;
+    text-align: left;
+}
+
+.profile-dropdown-item:hover {
+    background: rgba(236, 243, 234, 0.06);
+    color: var(--on-surface);
+}
+
+.navbar-hamburger {
+    display: none;
+    color: var(--on-surface-variant);
+}
+
+.mobile-menu {
+    display: none;
+    position: absolute;
+    top: var(--navbar-height);
+    left: 0;
+    right: 0;
+    padding: var(--space-6);
+    flex-direction: column;
+    gap: var(--space-4);
+    border-top: 1px solid rgba(236, 243, 234, 0.08);
+    background: linear-gradient(180deg, rgba(5, 8, 7, 0.94), rgba(5, 8, 7, 0.88));
+}
+
+.mobile-menu-link {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    padding: var(--space-3) 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: color var(--transition-fast);
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .navbar-links {
+        display: none;
+    }
+
+    .navbar-hamburger {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: flex;
+    }
+
+    .navbar-logo .brand-logo-copy {
+        display: none;
+    }
+}

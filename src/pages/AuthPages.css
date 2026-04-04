@@ -1,0 +1,98 @@
+/* ===== AUTH PAGES ===== */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    padding-top: var(--navbar-height);
+    position: relative;
+    isolation: isolate;
+}
+
+.auth-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top right, rgba(236, 243, 234, 0.12), transparent 26%),
+        linear-gradient(180deg, rgba(4, 6, 5, 0.22), rgba(4, 6, 5, 0.48));
+    pointer-events: none;
+    z-index: -1;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: clamp(1.6rem, 3vw, 2.6rem);
+    background: linear-gradient(180deg, rgba(8, 11, 10, 0.9), rgba(10, 14, 12, 0.76));
+    border: 1px solid rgba(236, 243, 234, 0.08);
+    border-radius: 2rem;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: var(--shadow-ambient);
+}
+
+.auth-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: center;
+}
+
+.auth-brand-mark {
+    margin-bottom: var(--space-2);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.auth-error {
+    padding: var(--space-3) var(--space-4);
+    background: rgba(215, 56, 59, 0.1);
+    border-left: 2px solid var(--error-dim);
+    color: var(--error);
+    font-size: 0.85rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: var(--space-4);
+}
+
+.auth-success {
+    text-align: center;
+    padding: var(--space-8) 0;
+}
+
+.auth-forgot-link {
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-align: right;
+    margin-bottom: var(--space-4);
+    transition: opacity var(--transition-fast);
+}
+
+.auth-forgot-link:hover {
+    opacity: 0.8;
+}
+
+.auth-switch {
+    text-align: center;
+    color: var(--on-surface-variant);
+}
+
+.auth-switch-link {
+    color: var(--primary);
+    font-weight: 600;
+    transition: opacity var(--transition-fast);
+}
+
+.auth-switch-link:hover {
+    opacity: 0.8;
+}
