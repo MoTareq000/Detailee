@@ -36,6 +36,11 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
 
     return (
         <nav className="navbar glass" id="main-navbar">
+            {user && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: 'red', color: 'white', textAlign: 'center', fontSize: '10px', zIndex: 10000, fontWeight: 'bold', pointerEvents: 'none', padding: '2px 0' }}>
+                    DEBUG: {user.email} | Role: {profile?.role} | isAdmin: {isAdmin ? 'YES' : 'NO'}
+                </div>
+            )}
             <div className="navbar-inner container">
                 {/* Logo */}
                 <Link to="/" className="navbar-logo" id="navbar-logo">
