@@ -19,26 +19,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const p = await withTimeout(
                 getProfile(currentUser.id),
-                5000,
-                'Profile request timed out'
+                8000,
+                'Profile request (Database) timed out'
             );
             setProfile(p);
-        } catch (err) {
-            console.error('Error fetching profile:', err);
+        } catch (err: any) {
+            console.error('Critical Profile Fetch Error:', err);
+            
+            // If the user's email matches a hardcoded admin, let's trust that as a fallback
+            const email = (currentUser.email ?? '').toLowerCase();
+            const isAdmin = email === 'mohamad23012778@gmail.com' || email === 'mostafamarzuk5@gmail.com';
 
             const fullName =
                 typeof currentUser.user_metadata?.full_name === 'string'
                     ? currentUser.user_metadata.full_name
                     : currentUser.email ?? 'User';
-            const role =
-                currentUser.app_metadata?.role === 'admin' || currentUser.user_metadata?.role === 'admin'
-                    ? 'admin'
-                    : 'user';
 
             setProfile({
                 id: currentUser.id,
                 full_name: fullName,
-                role,
+                role: isAdmin ? 'admin' : 'user',
                 avatar_url: null,
                 created_at: new Date().toISOString(),
             });
