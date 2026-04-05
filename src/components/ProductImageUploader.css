@@ -70,3 +70,27 @@
     color: var(--on-surface);
     word-break: break-word;
 }
+
+.image-color-select {
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-sm);
+    color: var(--on-surface);
+    font-size: 0.75rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+.image-color-select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.image-tag-hint {
+    font-size: 0.7rem;
+    color: var(--on-surface-variant);
+    opacity: 0.6;
+    margin-top: var(--space-2);
+}

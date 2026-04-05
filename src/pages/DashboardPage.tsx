@@ -146,9 +146,23 @@ export default function DashboardPage() {
                                         {order.items && order.items.length > 0 && (
                                             <div className="order-items-preview">
                                                 {order.items.map((item) => (
-                                                    <span key={item.id} className="body-sm">
-                                                        {item.product?.name || 'Product'} x {item.quantity}
-                                                    </span>
+                                                    <div key={item.id} className="order-item-detail">
+                                                        <span className="body-sm">
+                                                            <strong>{item.product?.name || 'Product'}</strong> x {item.quantity}
+                                                        </span>
+                                                        {(item.size || item.color) && (
+                                                            <span className="label-sm" style={{ opacity: 0.8 }}>
+                                                                {item.size && `Size: ${item.size}`}
+                                                                {item.size && item.color && ' | '}
+                                                                {item.color && `Color: ${item.color}`}
+                                                            </span>
+                                                        )}
+                                                        {item.custom_size_text && (
+                                                            <span className="label-sm" style={{ color: 'var(--primary)', fontStyle: 'italic' }}>
+                                                                Custom: {item.custom_size_text}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}

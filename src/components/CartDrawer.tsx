@@ -49,8 +49,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         />
                                         <div className="cart-item-info">
                                             <h4 className="body-sm">{item.product?.name}</h4>
+                                            
+                                            {item.variant && (
+                                                <div className="cart-item-variant">
+                                                    <span>Size: {item.variant.size}</span>
+                                                    <span>Color: {item.variant.color}</span>
+                                                </div>
+                                            )}
+                                            
+                                            {item.custom_size_text && (
+                                                <div className="cart-item-custom-text">
+                                                    Custom: {item.custom_size_text}
+                                                </div>
+                                            )}
+
                                             <span className="label-sm">
-                                                {formatPrice(item.product?.price ?? 0)}
+                                                {formatPrice(item.variant?.price ?? item.product?.price ?? 0)}
                                             </span>
                                             <div className="cart-item-qty">
                                                 <button
@@ -70,7 +84,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         </div>
                                         <div className="cart-item-actions">
                                             <span className="cart-item-total">
-                                                {formatPrice((item.product?.price ?? 0) * item.quantity)}
+                                                {formatPrice((item.variant?.price ?? item.product?.price ?? 0) * item.quantity)}
                                             </span>
                                             <button
                                                 className="btn-icon btn-sm"

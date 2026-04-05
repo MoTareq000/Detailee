@@ -62,8 +62,12 @@ export default function CheckoutPage() {
         try {
             const orderItems = items.map((item) => ({
                 product_id: item.product_id,
+                variant_id: item.variant_id,
                 quantity: item.quantity,
-                price: item.product?.price ?? 0,
+                price: item.variant?.price ?? item.product?.price ?? 0,
+                size: item.size || item.variant?.size || null,
+                color: item.color || item.variant?.color || null,
+                custom_size_text: item.custom_size_text,
             }));
             await withTimeout(
                 createOrder({
@@ -232,10 +236,22 @@ export default function CheckoutPage() {
                                             <span className="body-sm" style={{ color: 'var(--on-surface)' }}>
                                                 {item.product?.name}
                                             </span>
-                                            <span className="label-sm">Qty: {item.quantity}</span>
+                                            <div className="checkout-item-variant">
+                                                {item.variant && (
+                                                    <span className="label-sm">
+                                                        {item.variant.size} / {item.variant.color}
+                                                    </span>
+                                                )}
+                                                {item.custom_size_text && (
+                                                    <span className="label-sm" style={{ color: 'var(--primary)' }}>
+                                                        Custom: {item.custom_size_text}
+                                                    </span>
+                                                )}
+                                                <span className="label-sm">Qty: {item.quantity}</span>
+                                            </div>
                                         </div>
                                         <span className="body-sm" style={{ color: 'var(--on-surface)', fontWeight: 600 }}>
-                                            {formatPrice((item.product?.price ?? 0) * item.quantity)}
+                                            {formatPrice((item.variant?.price ?? item.product?.price ?? 0) * item.quantity)}
                                         </span>
                                     </div>
                                 ))}

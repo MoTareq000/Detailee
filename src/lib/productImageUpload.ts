@@ -35,7 +35,7 @@ function buildProductImagePath(productId: string, fileName: string, attempt: num
     return `products/${productId}/${timestamp}-${safeFileName}`;
 }
 
-async function uploadSingleProductImage(productId: string, file: File) {
+async function uploadSingleProductImage(productId: string, file: File, color?: string) {
     let lastUploadError: unknown;
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -74,6 +74,7 @@ async function uploadSingleProductImage(productId: string, file: File) {
             .insert({
                 product_id: productId,
                 image_url: publicUrl,
+                color: color || null,
             })
             .select()
             .single();
@@ -92,18 +93,18 @@ async function uploadSingleProductImage(productId: string, file: File) {
 
 export async function uploadProductImageFiles(
     productId: string,
-    files: File[]
+    files: Array<{ file: File; color?: string }>
 ): Promise<UploadedProductImagesResult> {
     const uploadedImages: ProductImage[] = [];
     const failedUploads: UploadedProductImagesResult['failedUploads'] = [];
 
-    for (const file of files) {
+    for (const item of files) {
         try {
-            const uploadedImage = await uploadSingleProductImage(productId, file);
+            const uploadedImage = await uploadSingleProductImage(productId, item.file, item.color);
             uploadedImages.push(uploadedImage);
         } catch (error) {
             failedUploads.push({
-                fileName: file.name,
+                fileName: item.file.name,
                 message: normalizeImageUploadMessage(
                     getErrorMessage(error, 'Failed to upload image')
                 ),

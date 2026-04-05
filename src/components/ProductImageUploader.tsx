@@ -6,6 +6,7 @@ export interface SelectedProductImageFile {
     id: string;
     file: File;
     previewUrl: string;
+    color?: string;
 }
 
 interface ProductImageUploaderProps {
@@ -13,6 +14,8 @@ interface ProductImageUploaderProps {
     uploading?: boolean;
     onFilesSelected: (files: FileList | null) => void;
     onRemoveFile: (fileId: string) => void;
+    availableColors?: string[];
+    onColorChange: (fileId: string, color: string) => void;
 }
 
 function formatFileSize(fileSize: number) {
@@ -28,6 +31,8 @@ export default function ProductImageUploader({
     uploading = false,
     onFilesSelected,
     onRemoveFile,
+    availableColors = [],
+    onColorChange,
 }: ProductImageUploaderProps) {
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         onFilesSelected(event.target.files);
@@ -69,6 +74,25 @@ export default function ProductImageUploader({
                             <div className="product-image-preview-copy">
                                 <span className="body-sm product-image-file-name">{item.file.name}</span>
                                 <span className="label-sm">{formatFileSize(item.file.size)}</span>
+                                
+                                {availableColors.length > 0 ? (
+                                    <div className="image-tag-section">
+                                        <label className="label-xs" style={{marginTop: 'var(--space-2)', display: 'block', opacity: 0.7}}>Color Category</label>
+                                        <select 
+                                            className="image-color-select"
+                                            value={item.color || ''}
+                                            onChange={(e) => onColorChange(item.id, e.target.value)}
+                                            disabled={uploading}
+                                        >
+                                            <option value="">General / All Colors</option>
+                                            {availableColors.map(color => (
+                                                <option key={color} value={color}>{color}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                ) : (
+                                    <p className="image-tag-hint">Add product colors in the 'Variants' section first to tag photos.</p>
+                                )}
                             </div>
                             <button
                                 type="button"

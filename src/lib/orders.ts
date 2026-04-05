@@ -19,8 +19,12 @@ export interface OrderItem {
     id: string;
     order_id: string;
     product_id: string | null;
+    variant_id: string | null;
     quantity: number;
     price_at_purchase: number;
+    size: string | null;
+    color: string | null;
+    custom_size_text: string | null;
     created_at: string;
     product?: OrderProduct | null;
 }
@@ -41,7 +45,15 @@ export interface OrderCheckoutDetails {
 export async function createOrder(
     params: {
         userId: string;
-        items: { product_id: string; quantity: number; price: number }[];
+        items: {
+            product_id: string;
+            variant_id: string | null;
+            quantity: number;
+            price: number;
+            size: string | null;
+            color: string | null;
+            custom_size_text: string | null;
+        }[];
         totalPrice: number;
     } & OrderCheckoutDetails
 ) {
@@ -71,38 +83,58 @@ export async function createOrder(
         })
         .select()
         .single();
-
     if (orderError) throw orderError;
 
     // Create order items
-    const orderItems = items.map((item) => ({
+    const orderItemsList = items.map((item) => ({
         order_id: order.id,
         product_id: item.product_id,
+        variant_id: item.variant_id,
         quantity: item.quantity,
         price_at_purchase: item.price,
+        size: item.size,
+        color: item.color,
+        custom_size_text: item.custom_size_text,
     }));
 
-    const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItemsList);
     if (itemsError) throw itemsError;
 
-    // Update product stock
+    // Update product/variant stock
     for (const item of items) {
-        const { error: stockError } = await supabase.rpc('decrement_stock', {
-            p_id: item.product_id,
-            qty: item.quantity,
-        });
-        if (stockError) {
-            // Fallback: manual update
-            const { data: product } = await supabase
-                .from('products')
+        if (item.variant_id) {
+            // Update variant stock
+            const { data: variant } = await supabase
+                .from('product_variants')
                 .select('stock')
-                .eq('id', item.product_id)
+                .eq('id', item.variant_id)
                 .single();
-            if (product) {
+            
+            if (variant) {
                 await supabase
+                    .from('product_variants')
+                    .update({ stock: Math.max(0, variant.stock - item.quantity) })
+                    .eq('id', item.variant_id);
+            }
+        } else {
+            // Update base product stock (using RPC or manual)
+            const { error: stockError } = await supabase.rpc('decrement_stock', {
+                p_id: item.product_id,
+                qty: item.quantity,
+            });
+            
+            if (stockError) {
+                const { data: product } = await supabase
                     .from('products')
-                    .update({ stock: Math.max(0, product.stock - item.quantity) })
-                    .eq('id', item.product_id);
+                    .select('stock')
+                    .eq('id', item.product_id)
+                    .single();
+                if (product) {
+                    await supabase
+                        .from('products')
+                        .update({ stock: Math.max(0, product.stock - item.quantity) })
+                        .eq('id', item.product_id);
+                }
             }
         }
     }
@@ -155,4 +187,9 @@ export async function updateOrderStatus(orderId: string, status: Order['status']
 
     if (error) throw error;
     return data as Order;
+}
+
+export async function deleteOrder(orderId: string) {
+    const { error } = await supabase.from('orders').delete().eq('id', orderId);
+    if (error) throw error;
 }

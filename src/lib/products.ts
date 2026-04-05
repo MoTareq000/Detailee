@@ -1,5 +1,15 @@
 import { supabase } from './supabase';
 
+export interface ProductVariant {
+    id: string;
+    product_id: string;
+    size: string;
+    color: string;
+    price: number;
+    stock: number;
+    created_at: string;
+}
+
 export interface Product {
     id: string;
     category_id: string | null;
@@ -10,6 +20,7 @@ export interface Product {
     created_at: string;
     category?: Category;
     images?: ProductImage[];
+    variants?: ProductVariant[];
 }
 
 export interface Category {
@@ -23,6 +34,7 @@ export interface ProductImage {
     id: string;
     product_id: string;
     image_url: string;
+    color?: string | null;
     created_at: string;
 }
 
@@ -36,7 +48,7 @@ export async function getProducts(options?: {
 }) {
     let query = supabase
         .from('products')
-        .select('*, category:categories(*), images:product_images(*)');
+        .select('*, category:categories(*), images:product_images(*), variants:product_variants(*)');
 
     if (options?.categoryId) {
         query = query.eq('category_id', options.categoryId);
@@ -74,7 +86,7 @@ export async function getProducts(options?: {
 export async function getProductById(id: string) {
     const { data, error } = await supabase
         .from('products')
-        .select('*, category:categories(*), images:product_images(*)')
+        .select('*, category:categories(*), images:product_images(*), variants:product_variants(*)')
         .eq('id', id)
         .single();
 
@@ -129,5 +141,40 @@ export async function addProductImage(productId: string, imageUrl: string) {
 
 export async function deleteProductImage(imageId: string) {
     const { error } = await supabase.from('product_images').delete().eq('id', imageId);
+    if (error) throw error;
+}
+
+// Product Variants
+export async function createProductVariant(variant: {
+    product_id: string;
+    size: string;
+    color: string;
+    price: number;
+    stock: number;
+}) {
+    const { data, error } = await supabase
+        .from('product_variants')
+        .insert(variant)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data as ProductVariant;
+}
+
+export async function updateProductVariant(id: string, updates: Partial<ProductVariant>) {
+    const { data, error } = await supabase
+        .from('product_variants')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data as ProductVariant;
+}
+
+export async function deleteProductVariant(id: string) {
+    const { error } = await supabase.from('product_variants').delete().eq('id', id);
     if (error) throw error;
 }

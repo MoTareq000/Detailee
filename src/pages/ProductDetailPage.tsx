@@ -26,6 +26,9 @@ export default function ProductDetailPage() {
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
+    const [selectedSize, setSelectedSize] = useState<string | null>(null);
+    const [selectedColor, setSelectedColor] = useState<string | null>(null);
+    const [customSizeText, setCustomSizeText] = useState('');
     const { user } = useAuth();
     const { addItem } = useCart();
 
@@ -52,14 +55,63 @@ export default function ProductDetailPage() {
 
     useEffect(() => {
         setSelectedImage(0);
+        setSelectedSize(null);
+        setSelectedColor(null);
+        setCustomSizeText('');
     }, [product?.id]);
+
+    const variants = product?.variants || [];
+    const colors = Array.from(new Set(variants.map((v) => v.color)));
+    
+    // Sort colors to ensure consistent order
+    colors.sort();
+
+    // Extract all unique sizes from ALL variants
+    const sizes = Array.from(new Set(variants.map((v) => v.size)));
+    
+    // Always include 'Custom' as an option if not present
+    if (!sizes.some(s => s.toLowerCase() === 'custom')) {
+        sizes.push('Custom');
+    }
+
+    const selectedVariant = variants.find(
+        (v) => v.size === selectedSize && v.color === selectedColor
+    );
+
+    const isCustomSize = selectedSize?.toLowerCase() === 'custom';
+    const variantExists = !!selectedVariant || isCustomSize;
+
+    const price = isCustomSize ? (product?.price ?? 0) : (selectedVariant?.price ?? product?.price ?? 0);
+    const stock = isCustomSize ? 999 : Math.max(0, selectedVariant?.stock ?? 0);
 
     const handleAddToCart = async () => {
         if (!user || !product) return;
+        
+        // Validation
+        if (!selectedSize) {
+            showToast('Please select a size', 'error');
+            return;
+        }
+        if (!selectedColor) {
+            showToast('Please select a color', 'error');
+            return;
+        }
+        if (isCustomSize && !customSizeText.trim()) {
+            showToast('Please enter your custom size details', 'error');
+            return;
+        }
+
         setAdding(true);
         try {
             await withTimeout(
-                addItem(product.id, quantity),
+                addItem(
+                    product.id,
+                    selectedVariant?.id || null, 
+                    quantity,
+                    isCustomSize ? customSizeText : null,
+                    selectedSize, // Pass size name
+                    selectedColor // Pass color name
+                ),
                 6000,
                 'Adding to cart took too long'
             );
@@ -99,7 +151,13 @@ export default function ProductDetailPage() {
         );
     }
 
-    const images = product.images || [];
+    // Filter images based on selected color
+    const allImages = product.images || [];
+    const images = allImages.filter(img => {
+        if (!selectedColor) return true;
+        return img.color === selectedColor || !img.color;
+    });
+
     const currentImage = images[selectedImage]?.image_url || '/images/placeholder.svg';
     const hasMultipleImages = images.length > 1;
 
@@ -194,8 +252,8 @@ export default function ProductDetailPage() {
                         <h1 className="display-md product-title">{product.name}</h1>
 
                         <div className="product-price-row">
-                            <span className="product-price">{formatPrice(product.price)}</span>
-                            {product.stock > 0 ? (
+                            <span className="product-price">{formatPrice(price)}</span>
+                            {stock > 0 ? (
                                 <span className="badge badge-success">In Stock</span>
                             ) : (
                                 <span className="badge badge-error">Sold Out</span>
@@ -204,6 +262,68 @@ export default function ProductDetailPage() {
 
                         {product.description && (
                             <p className="body-md product-description">{product.description}</p>
+                        )}
+
+                        {/* Variant Selection (Both Color and Size visible) */}
+                        <div className="variant-selectors">
+                            {colors.length > 0 && (
+                                <div className="variant-selector-group">
+                                    <span className="variant-label">Color</span>
+                                    <div className="variant-options">
+                                        {colors.map((color) => (
+                                            <button
+                                                key={color}
+                                                className={`variant-button ${selectedColor === color ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setSelectedColor(color);
+                                                    setSelectedImage(0); // Reset gallery to first image of this color
+                                                }}
+                                            >
+                                                {color}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {sizes.length > 0 && (
+                                <div className="variant-selector-group">
+                                    <span className="variant-label">Size</span>
+                                    <div className="variant-options">
+                                        {sizes.map((size) => (
+                                            <button
+                                                key={size}
+                                                className={`variant-button ${selectedSize === size ? 'active' : ''}`}
+                                                onClick={() => setSelectedSize(size)}
+                                            >
+                                                {size}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Error/Notice if combination doesn't exist */}
+                        {selectedColor && selectedSize && !variantExists && (
+                            <div className="variant-error-msg animate-fade-in">
+                                This combination is not available
+                            </div>
+                        )}
+
+                        {isCustomSize && (
+                            <div className="custom-size-config animate-fade-in">
+                                <p className="body-sm" style={{ marginBottom: 'var(--space-2)', color: 'var(--primary)' }}>
+                                    <strong>Custom size:</strong> Enter your dimensions below. Our admin will review and adjust the price accordingly.
+                                </p>
+                                <textarea
+                                    className="input-field"
+                                    placeholder="e.g., 60x80 cm / Custom layout details..."
+                                    value={customSizeText}
+                                    onChange={(e) => setCustomSizeText(e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
                         )}
 
                         <div className="spec-sheet">
@@ -226,7 +346,7 @@ export default function ProductDetailPage() {
                                     <Clock size={14} />
                                     Stock
                                 </span>
-                                <span className="spec-value">{product.stock} units</span>
+                                <span className="spec-value">{stock} units</span>
                             </div>
                         </div>
 
@@ -250,17 +370,21 @@ export default function ProductDetailPage() {
                                     </button>
                                 </div>
                                 <button
-                                    className="btn btn-primary btn-lg add-to-cart-btn"
+                                    className="btn btn-primary btn-lg"
+                                    style={{ flex: 1 }}
                                     onClick={handleAddToCart}
-                                    disabled={adding}
-                                    id="add-to-cart-button"
+                                    disabled={adding || stock <= 0 || !variantExists}
                                 >
                                     {adding ? (
                                         <div className="spinner" style={{ width: 18, height: 18 }} />
+                                    ) : stock <= 0 ? (
+                                        'Out of Stock'
+                                    ) : !variantExists ? (
+                                        'Not Available'
                                     ) : (
                                         <>
                                             <ShoppingCart size={18} />
-                                            Add to Cart - {formatPrice(product.price * quantity)}
+                                            Add to Cart - {formatPrice(price * quantity)}
                                         </>
                                     )}
                                 </button>

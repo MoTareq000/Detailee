@@ -35,9 +35,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         refreshCart();
     }, [refreshCart]);
 
-    const addItem = async (productId: string, quantity = 1) => {
+    const addItem = async (
+        productId: string, 
+        variantId: string | null, 
+        quantity = 1, 
+        customSizeText: string | null = null,
+        size: string | null = null,
+        color: string | null = null
+    ) => {
         if (!user) throw new Error('Must be logged in');
-        await cartService.addToCart(user.id, productId, quantity);
+        await cartService.addToCart(user.id, productId, variantId, quantity, customSizeText, size, color);
         await refreshCart();
     };
 
@@ -63,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
     const total = items.reduce((sum, item) => {
-        const price = item.product?.price ?? 0;
+        const price = item.variant?.price ?? item.product?.price ?? 0;
         return sum + price * item.quantity;
     }, 0);
 
