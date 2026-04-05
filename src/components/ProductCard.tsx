@@ -21,7 +21,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         e.stopPropagation();
         if (!user) return;
         try {
-            await addItem(product.id);
+            // Fix: Added null arguments to match the required 6-argument signature
+            await addItem(product.id, null, 1, null, null, null);
         } catch (err) {
             console.error('Error adding to cart:', err);
         }
