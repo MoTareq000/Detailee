@@ -82,7 +82,9 @@ export default function ProductDetailPage() {
     const variantExists = !!selectedVariant || isCustomSize;
 
     const price = isCustomSize ? (product?.price ?? 0) : (selectedVariant?.price ?? product?.price ?? 0);
-    const stock = isCustomSize ? 999 : Math.max(0, selectedVariant?.stock ?? 0);
+    const stock = isCustomSize ? 999 : (
+        selectedVariant ? Math.max(0, selectedVariant.stock) : Math.max(0, product?.stock ?? 0)
+    );
 
     const handleAddToCart = async () => {
         if (!user || !product) return;
