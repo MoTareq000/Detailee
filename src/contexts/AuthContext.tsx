@@ -133,6 +133,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { requiresEmailConfirmation: !data.session };
     };
 
+    const handleGoogleSignIn = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/`,
+            },
+        });
+        if (error) throw error;
+    };
+
     const handleSignOut = async () => {
         try {
             await withTimeout(
@@ -163,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 loading,
                 profileLoading,
                 signIn: handleSignIn,
+                signInWithGoogle: handleGoogleSignIn,
                 signUp: handleSignUp,
                 signOut: handleSignOut,
                 refreshProfile,

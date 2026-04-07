@@ -185,10 +185,16 @@ export default function AdminPage() {
 
             if (newProductImages.length > 0) {
                 setUploadingImages(true);
-                await uploadProductImageFiles(
+                const result = await uploadProductImageFiles(
                     prod.id, 
                     newProductImages.map(img => ({ file: img.file, color: img.color }))
                 );
+
+                if (result.failedUploads.length > 0) {
+                    const firstError = result.failedUploads[0].message;
+                    const errorCount = result.failedUploads.length;
+                    throw new Error(`Failed to upload ${errorCount} image(s): ${firstError}`);
+                }
             }
 
             showToast('Product added successfully', 'success');

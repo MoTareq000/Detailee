@@ -1,6 +1,6 @@
 import { getErrorMessage } from './errors';
 import type { ProductImage } from './products';
-import { publicSupabase, supabase } from './supabase';
+import { supabase } from './supabase';
 
 const PRODUCT_PICS_BUCKET = 'product_pics';
 
@@ -67,7 +67,7 @@ async function uploadSingleProductImage(productId: string, file: File, color?: s
 
         const {
             data: { publicUrl },
-        } = publicSupabase.storage.from(PRODUCT_PICS_BUCKET).getPublicUrl(storagePath);
+        } = supabase.storage.from(PRODUCT_PICS_BUCKET).getPublicUrl(storagePath);
 
         const { data, error: insertError } = await supabase
             .from('product_images')

@@ -19,7 +19,7 @@ export async function getProfile(userId: string) {
     return data as Profile;
 }
 
-export async function updateProfile(userId: string, updates: Partial<Profile>) {
+export async function updateProfile(userId: string, updates: Partial<Omit<Profile, 'role' | 'id' | 'created_at'>>) {
     const { data, error } = await supabase
         .from('profiles')
         .update(updates)

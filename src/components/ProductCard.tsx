@@ -14,14 +14,21 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const { user } = useAuth();
     const { addItem } = useCart();
-    const imageUrl = product.images?.[0]?.image_url || '/images/placeholder.svg';
+    
+    if (!product) return null;
+
+    const imageUrl = product?.images?.[0]?.image_url || '/images/placeholder.svg';
+
+    const baseStock = Math.max(0, product?.stock ?? 0);
+    const variants = product?.variants || [];
+    const totalVariantStock = variants.reduce((sum, v) => sum + Math.max(0, v?.stock ?? 0), 0);
+    const overallStock = Math.max(baseStock, totalVariantStock);
 
     const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!user) return;
+        if (!user || !product) return;
         try {
-            // Fix: Added null arguments to match the required 6-argument signature
             await addItem(product.id, null, 1, null, null, null);
         } catch (err) {
             console.error('Error adding to cart:', err);
@@ -38,12 +45,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="product-card-image-wrapper">
                 <img
                     src={imageUrl}
-                    alt={product.name}
+                    alt={product.name || 'Product'}
                     className="product-card-image"
                     loading="lazy"
                 />
                 <div className="product-card-overlay">
-                    {user && product.stock > 0 && (
+                    {user && overallStock > 0 && (
                         <button
                             className="btn btn-primary btn-sm product-card-cart-btn"
                             onClick={handleAddToCart}
@@ -56,16 +63,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </div>
 
             <div className="product-card-info">
-                {product.category && (
+                {product?.category && (
                     <span className="label-sm">{product.category.name}</span>
                 )}
-                <h3 className="product-card-name">{product.name}</h3>
+                <h3 className="product-card-name">{product?.name}</h3>
                 <div className="product-card-bottom">
-                    <span className="product-card-price">{formatPrice(product.price)}</span>
-                    {product.stock <= 0 && (
+                    <span className="product-card-price">{formatPrice(product?.price ?? 0)}</span>
+                    {overallStock <= 0 && (
                         <span className="badge badge-error">Sold Out</span>
                     )}
-                    {product.stock > 0 && product.stock <= 5 && (
+                    {overallStock > 0 && overallStock <= 5 && (
                         <span className="badge badge-warning">Low Stock</span>
                     )}
                 </div>

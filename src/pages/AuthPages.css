@@ -96,3 +96,51 @@
 .auth-switch-link:hover {
     opacity: 0.8;
 }
+
+/* Google Login Button Styles */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: var(--space-4) 0;
+    color: var(--on-surface-variant);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(236, 243, 234, 0.08);
+}
+
+.btn-google {
+    background: white;
+    color: #1f1f1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all var(--transition-medium);
+    border: 1px solid #e1e1e1;
+}
+
+.btn-google:hover {
+    background: #f8f8f8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-google:active {
+    transform: translateY(0);
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}

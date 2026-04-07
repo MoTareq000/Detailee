@@ -61,7 +61,7 @@ export default function ProductDetailPage() {
     }, [product?.id]);
 
     const variants = product?.variants || [];
-    const colors = Array.from(new Set(variants.map((v) => v.color)));
+    const colors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
     
     // Sort colors to ensure consistent order
     colors.sort();
@@ -86,17 +86,27 @@ export default function ProductDetailPage() {
     // Check if base product has stock, or any variant has stock
     const baseStock = Math.max(0, product?.stock ?? 0);
     const variantStock = selectedVariant ? Math.max(0, selectedVariant.stock) : 0;
-    const stock = isCustomSize ? 999 : (selectedVariant ? variantStock : baseStock);
+    
+    // Calculate total available stock across all variants
+    const totalVariantStock = variants.reduce((sum, v) => sum + Math.max(0, v.stock), 0);
+    
+    // Overall available stock for the product
+    const overallStock = Math.max(baseStock, totalVariantStock);
+
+    // Dynamic stock based on current selection state
+    const displayStock = isCustomSize 
+        ? 999 
+        : (selectedVariant ? variantStock : overallStock);
 
     const handleAddToCart = async () => {
         if (!user || !product) return;
         
         // Validation
-        if (!selectedSize) {
+        if (sizes.length > 0 && !selectedSize) {
             showToast('Please select a size', 'error');
             return;
         }
-        if (!selectedColor) {
+        if (colors.length > 0 && !selectedColor) {
             showToast('Please select a color', 'error');
             return;
         }
@@ -257,7 +267,7 @@ export default function ProductDetailPage() {
 
                         <div className="product-price-row">
                             <span className="product-price">{formatPrice(price)}</span>
-                            {stock > 0 ? (
+                            {displayStock > 0 ? (
                                 <span className="badge badge-success">In Stock</span>
                             ) : (
                                 <span className="badge badge-error">Sold Out</span>
@@ -350,50 +360,57 @@ export default function ProductDetailPage() {
                                     <Clock size={14} />
                                     Stock
                                 </span>
-                                <span className="spec-value">{stock} units</span>
+                                <span className="spec-value">{displayStock} units</span>
                             </div>
                         </div>
 
-                        {user && product.stock > 0 && (
-                            <div className="add-to-cart-section">
-                                <div className="quantity-selector">
+                        {user && overallStock > 0 && (() => {
+                            const needsColor = colors.length > 0;
+                            const needsSize = sizes.length > 0;
+                            const missingSelection = (needsColor && !selectedColor) || (needsSize && !selectedSize);
+                            const isInvalidCombination = !missingSelection && !variantExists;
+
+                            return (
+                                <div className="add-to-cart-section">
+                                    <div className="quantity-selector">
+                                        <button
+                                            className="btn btn-ghost btn-icon"
+                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            disabled={quantity <= 1}
+                                        >
+                                            <Minus size={16} />
+                                        </button>
+                                        <span className="quantity-value">{quantity}</span>
+                                        <button
+                                            className="btn btn-ghost btn-icon"
+                                            onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
+                                            disabled={quantity >= displayStock}
+                                        >
+                                            <Plus size={16} />
+                                        </button>
+                                    </div>
                                     <button
-                                        className="btn btn-ghost btn-icon"
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        disabled={quantity <= 1}
+                                        className="btn btn-primary btn-lg"
+                                        style={{ flex: 1 }}
+                                        onClick={handleAddToCart}
+                                        disabled={adding || displayStock <= 0 || isInvalidCombination}
                                     >
-                                        <Minus size={16} />
-                                    </button>
-                                    <span className="quantity-value">{quantity}</span>
-                                    <button
-                                        className="btn btn-ghost btn-icon"
-                                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                                        disabled={quantity >= product.stock}
-                                    >
-                                        <Plus size={16} />
+                                        {adding ? (
+                                            <div className="spinner" style={{ width: 18, height: 18 }} />
+                                        ) : displayStock <= 0 ? (
+                                            'Out of Stock'
+                                        ) : isInvalidCombination ? (
+                                            'Not Available'
+                                        ) : (
+                                            <>
+                                                <ShoppingCart size={18} />
+                                                Add to Cart - {formatPrice(price * quantity)}
+                                            </>
+                                        )}
                                     </button>
                                 </div>
-                                <button
-                                    className="btn btn-primary btn-lg"
-                                    style={{ flex: 1 }}
-                                    onClick={handleAddToCart}
-                                    disabled={adding || stock <= 0 || !variantExists}
-                                >
-                                    {adding ? (
-                                        <div className="spinner" style={{ width: 18, height: 18 }} />
-                                    ) : stock <= 0 ? (
-                                        'Out of Stock'
-                                    ) : !variantExists ? (
-                                        'Not Available'
-                                    ) : (
-                                        <>
-                                            <ShoppingCart size={18} />
-                                            Add to Cart - {formatPrice(price * quantity)}
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {!user && (
                             <Link to="/login" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
