@@ -10,10 +10,12 @@ import {
     Clock,
     ChevronLeft,
     ChevronRight,
+    Heart,
 } from 'lucide-react';
 import { getProductById, type Product } from '../lib/products';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
+import { useWishlist } from '../contexts/useWishlist';
 import { formatPrice } from '../lib/currency';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
@@ -31,6 +33,7 @@ export default function ProductDetailPage() {
     const [customSizeText, setCustomSizeText] = useState('');
     const { user } = useAuth();
     const { addItem } = useCart();
+    const { isWishlisted, toggleWishlist } = useWishlist();
 
     useEffect(() => {
         async function load() {
@@ -189,6 +192,26 @@ export default function ProductDetailPage() {
         );
     };
 
+    const handleWishlistToggle = async () => {
+        if (!product) return;
+        if (!user) {
+            showToast('Sign in to save wishlist items.', 'info');
+            return;
+        }
+
+        const currentlyWishlisted = isWishlisted(product.id);
+        try {
+            await toggleWishlist(product.id);
+            showToast(
+                currentlyWishlisted ? 'Removed from wishlist.' : 'Added to wishlist.',
+                'success'
+            );
+        } catch (error) {
+            console.error('Error updating wishlist:', error);
+            showToast('Could not update wishlist right now.', 'error');
+        }
+    };
+
     return (
         <div className="product-detail-page" id="product-detail-page">
             <div className="container">
@@ -263,7 +286,21 @@ export default function ProductDetailPage() {
                         {product.category && (
                             <span className="label-sm">{product.category.name}</span>
                         )}
-                        <h1 className="display-md product-title">{product.name}</h1>
+                        <div className="product-title-row">
+                            <h1 className="display-md product-title">{product.name}</h1>
+                            <button
+                                type="button"
+                                className={`product-wishlist-btn ${isWishlisted(product.id) ? 'active' : ''}`}
+                                onClick={handleWishlistToggle}
+                                aria-label={
+                                    isWishlisted(product.id)
+                                        ? 'Remove from wishlist'
+                                        : 'Add to wishlist'
+                                }
+                            >
+                                <Heart size={18} />
+                            </button>
+                        </div>
 
                         <div className="product-price-row">
                             <span className="product-price">{formatPrice(price)}</span>

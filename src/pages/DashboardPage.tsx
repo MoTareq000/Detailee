@@ -1,18 +1,24 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Package, Clock, MapPin, User as UserIcon } from 'lucide-react';
+import { Package, Clock, MapPin, User as UserIcon, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { getUserOrders, type Order } from '../lib/orders';
 import { updateProfile } from '../lib/profiles';
+import { getProductsByIds, type Product } from '../lib/products';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import { formatPrice } from '../lib/currency';
+import ProductCard from '../components/ProductCard';
+import { useWishlist } from '../contexts/useWishlist';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
     const { user, profile, refreshProfile } = useAuth();
+    const { productIds } = useWishlist();
     const [orders, setOrders] = useState<Order[]>([]);
+    const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'orders' | 'profile'>('orders');
+    const [activeTab, setActiveTab] = useState<'orders' | 'wishlist' | 'profile'>('orders');
     const [fullName, setFullName] = useState(profile?.full_name || '');
     const [saving, setSaving] = useState(false);
 
@@ -40,6 +46,32 @@ export default function DashboardPage() {
 
         void load();
     }, [user]);
+
+    useEffect(() => {
+        async function loadWishlist() {
+            if (!user || productIds.length === 0) {
+                setWishlistItems([]);
+                return;
+            }
+
+            setWishlistLoading(true);
+            try {
+                const products = await withTimeout(
+                    getProductsByIds(productIds),
+                    6000,
+                    'Wishlist took too long to load'
+                );
+                setWishlistItems(products);
+            } catch (error) {
+                console.error('Error loading wishlist:', error);
+                setWishlistItems([]);
+            } finally {
+                setWishlistLoading(false);
+            }
+        }
+
+        void loadWishlist();
+    }, [productIds, user]);
 
     const handleProfileUpdate = async (event: FormEvent) => {
         event.preventDefault();
@@ -90,6 +122,13 @@ export default function DashboardPage() {
                     >
                         <Package size={16} />
                         Orders
+                    </button>
+                    <button
+                        className={`dashboard-tab ${activeTab === 'wishlist' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('wishlist')}
+                    >
+                        <Heart size={16} />
+                        Wishlist
                     </button>
                     <button
                         className={`dashboard-tab ${activeTab === 'profile' ? 'active' : ''}`}
@@ -167,6 +206,30 @@ export default function DashboardPage() {
                                             </div>
                                         )}
                                     </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'wishlist' && (
+                    <div className="dashboard-content animate-fade-in">
+                        {wishlistLoading ? (
+                            <div className="product-grid">
+                                {[...Array(3)].map((_, index) => (
+                                    <div key={index} className="skeleton" style={{ aspectRatio: '1' }} />
+                                ))}
+                            </div>
+                        ) : wishlistItems.length === 0 ? (
+                            <div className="empty-state">
+                                <Heart size={48} strokeWidth={1} />
+                                <p className="headline-sm">Your wishlist is empty</p>
+                                <p className="body-sm">Tap the heart icon on any product to save it.</p>
+                            </div>
+                        ) : (
+                            <div className="product-grid">
+                                {wishlistItems.map((product, index) => (
+                                    <ProductCard key={product.id} product={product} index={index} />
                                 ))}
                             </div>
                         )}

@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { readCachedValue, writeCachedValue } from './cache';
 
 export interface ProductVariant {
     id: string;
@@ -46,6 +47,12 @@ export async function getProducts(options?: {
     sortBy?: 'price_asc' | 'price_desc' | 'newest';
     limit?: number;
 }) {
+    const cacheKey = `products_${JSON.stringify(options ?? {})}`;
+    const cachedProducts = readCachedValue<Product[]>(cacheKey, 60_000);
+    if (cachedProducts) {
+        return cachedProducts;
+    }
+
     let query = supabase
         .from('products')
         .select('*, category:categories(*), images:product_images(*), variants:product_variants(*)');
@@ -80,10 +87,18 @@ export async function getProducts(options?: {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data as Product[];
+    const products = data as Product[];
+    writeCachedValue(cacheKey, products);
+    return products;
 }
 
 export async function getProductById(id: string) {
+    const cacheKey = `product_${id}`;
+    const cachedProduct = readCachedValue<Product>(cacheKey, 120_000);
+    if (cachedProduct) {
+        return cachedProduct;
+    }
+
     const { data, error } = await supabase
         .from('products')
         .select('*, category:categories(*), images:product_images(*), variants:product_variants(*)')
@@ -91,7 +106,26 @@ export async function getProductById(id: string) {
         .single();
 
     if (error) throw error;
-    return data as Product;
+    const product = data as Product;
+    writeCachedValue(cacheKey, product);
+    return product;
+}
+
+export async function getProductsByIds(ids: string[]) {
+    if (ids.length === 0) {
+        return [] as Product[];
+    }
+
+    const { data, error } = await supabase
+        .from('products')
+        .select('*, category:categories(*), images:product_images(*), variants:product_variants(*)')
+        .in('id', ids);
+
+    if (error) throw error;
+
+    const products = (data as Product[]) ?? [];
+    const byId = new Map(products.map((product) => [product.id, product]));
+    return ids.map((id) => byId.get(id)).filter((product): product is Product => Boolean(product));
 }
 
 export async function createProduct(product: {

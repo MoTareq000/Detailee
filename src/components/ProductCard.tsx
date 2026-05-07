@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
+import { useWishlist } from '../contexts/useWishlist';
 import type { Product } from '../lib/products';
 import { formatPrice } from '../lib/currency';
+import { showToast } from './toastStore';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -14,6 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const { user } = useAuth();
     const { addItem } = useCart();
+    const { isWishlisted, toggleWishlist } = useWishlist();
     
     if (!product) return null;
 
@@ -35,6 +38,28 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         }
     };
 
+    const handleWishlistToggle = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            showToast('Sign in to save wishlist items.', 'info');
+            return;
+        }
+
+        const currentlyWishlisted = isWishlisted(product.id);
+        try {
+            await toggleWishlist(product.id);
+            showToast(
+                currentlyWishlisted ? 'Removed from wishlist.' : 'Added to wishlist.',
+                'success'
+            );
+        } catch (error) {
+            console.error('Error updating wishlist:', error);
+            showToast('Could not update wishlist right now.', 'error');
+        }
+    };
+
     return (
         <Link
             to={`/product/${product.id}`}
@@ -43,6 +68,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             style={{ animationDelay: `${index * 80}ms` }}
         >
             <div className="product-card-image-wrapper">
+                <button
+                    type="button"
+                    className={`product-card-heart ${isWishlisted(product.id) ? 'active' : ''}`}
+                    onClick={handleWishlistToggle}
+                    aria-label={
+                        isWishlisted(product.id)
+                            ? 'Remove from wishlist'
+                            : 'Add to wishlist'
+                    }
+                >
+                    <Heart size={16} />
+                </button>
                 <img
                     src={imageUrl}
                     alt={product.name || 'Product'}

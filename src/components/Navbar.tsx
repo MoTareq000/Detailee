@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut, LayoutDashboard, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { useWishlist } from '../contexts/useWishlist';
 import BrandLogo from './BrandLogo';
 import { showToast } from './toastStore';
 import './Navbar.css';
@@ -14,6 +15,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
     const { user, profile, signOut } = useAuth();
     const { isAdmin } = useIsAdmin();
     const { itemCount } = useCart();
+    const { productIds } = useWishlist();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -57,6 +59,18 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
 
                 {/* Right Actions */}
                 <div className="navbar-actions">
+                    {user && (
+                        <Link
+                            to="/dashboard"
+                            className={`navbar-wishlist btn-icon ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                            id="wishlist-button"
+                            aria-label="Open wishlist"
+                        >
+                            <Heart size={20} />
+                            {productIds.length > 0 && <span className="cart-badge">{productIds.length}</span>}
+                        </Link>
+                    )}
+
                     {/* Cart Button */}
                     <button
                         className="navbar-cart btn-icon"
@@ -147,6 +161,15 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                             onClick={() => setMenuOpen(false)}
                         >
                             Sign In
+                        </Link>
+                    )}
+                    {user && (
+                        <Link
+                            to="/dashboard"
+                            className={`mobile-menu-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Wishlist
                         </Link>
                     )}
                 </div>

@@ -8,6 +8,7 @@ import { showToast } from '../components/toastStore';
 import { getErrorMessage } from '../lib/errors';
 import { withTimeout } from '../lib/async';
 import { formatPrice } from '../lib/currency';
+import { usePersistentState } from '../hooks/usePersistentState';
 import './CheckoutPage.css';
 
 type CheckoutFormValues = {
@@ -25,7 +26,7 @@ export default function CheckoutPage() {
     const { items, total, clearAll } = useCart();
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<CheckoutFormValues>({
+    const [form, setForm, clearForm] = usePersistentState<CheckoutFormValues>('checkout.form', {
         phone: '',
         city: '',
         street: '',
@@ -84,6 +85,14 @@ export default function CheckoutPage() {
                 'Checkout took too long'
             );
             await clearAll();
+            setForm({
+                phone: '',
+                city: '',
+                street: '',
+                building: '',
+                notes: '',
+            });
+            clearForm();
             showToast('Order placed successfully!', 'success');
             navigate('/dashboard');
         } catch (error) {

@@ -35,6 +35,7 @@
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: var(--shadow-ambient);
+    animation: scaleIn 0.5s ease both;
 }
 
 .auth-header {
@@ -63,6 +64,7 @@
     font-size: 0.85rem;
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     margin-bottom: var(--space-4);
+    animation: fadeInUp 0.3s ease both;
 }
 
 .auth-success {
@@ -114,7 +116,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(236, 243, 234, 0.08);
+    background: linear-gradient(90deg, transparent, rgba(236, 243, 234, 0.12), transparent);
 }
 
 .btn-google {
@@ -126,21 +128,34 @@
     gap: var(--space-3);
     font-weight: 500;
     font-size: 0.95rem;
-    transition: all var(--transition-medium);
+    transition: all var(--transition-base);
     border: 1px solid #e1e1e1;
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-6);
 }
 
 .btn-google:hover {
     background: #f8f8f8;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .btn-google:active {
     transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .google-icon {
     width: 20px;
     height: 20px;
+}
+
+/* Input focus enhancement */
+.auth-form .input-field {
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.auth-form .input-field:focus {
+    border-bottom-color: var(--primary);
+    box-shadow: 0 2px 0 0 rgba(238, 243, 234, 0.3);
 }

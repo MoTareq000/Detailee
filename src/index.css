@@ -74,7 +74,9 @@
 
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
+  --transition-medium: 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --max-width: 1400px;
   --navbar-height: 72px;
@@ -267,6 +269,7 @@ h6 {
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+  transform: translateY(0);
 }
 
 .btn-primary {
@@ -277,6 +280,7 @@ h6 {
 .btn-primary:hover {
   background-color: var(--primary-dim);
   box-shadow: 0 0 30px rgba(238, 243, 234, 0.16);
+  transform: translateY(-2px);
 }
 
 .btn-primary:active {
@@ -293,8 +297,16 @@ h6 {
   gap: var(--space-10) var(--space-8);
 }
 
+.btn-secondary {
+  background-color: rgba(236, 243, 234, 0.06);
+  color: var(--on-surface);
+  border: 1px solid rgba(236, 243, 234, 0.12);
+}
+
 .btn-secondary:hover {
   background-color: rgba(236, 243, 234, 0.14);
+  border-color: rgba(236, 243, 234, 0.22);
+  transform: translateY(-2px);
 }
 
 .btn-ghost {
@@ -386,7 +398,7 @@ h6 {
 
 .card {
   background: linear-gradient(180deg, rgba(8, 11, 10, 0.84), rgba(11, 15, 13, 0.76));
-  border-radius: var(--radius-none);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all var(--transition-slow);
   border: 1px solid rgba(236, 243, 234, 0.06);
@@ -396,6 +408,8 @@ h6 {
 
 .card:hover {
   background-color: var(--surface-container);
+  border-color: rgba(236, 243, 234, 0.12);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .glass {
@@ -510,6 +524,26 @@ h6 {
 @keyframes glow {
   0%, 100% { box-shadow: 0 0 20px rgba(236, 243, 234, 0.12); }
   50% { box-shadow: 0 0 40px rgba(236, 243, 234, 0.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
 }
 
 .animate-fade-in { animation: fadeIn 0.6s ease both; }

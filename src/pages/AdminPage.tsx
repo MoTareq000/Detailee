@@ -18,18 +18,37 @@ import {
     getProducts, createProduct, updateProduct, deleteProduct, type Product,
     createProductVariant, deleteProductVariant
 } from '../lib/products';
-import { getCategories, createCategory, type Category } from '../lib/categories';
+import { getCategories, createCategory, updateCategory, deleteCategory, type Category } from '../lib/categories';
 import { getAllOrders, updateOrderStatus, type Order, deleteOrder } from '../lib/orders';
 import { uploadProductImageFiles } from '../lib/productImageUpload';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import { getErrorMessage } from '../lib/errors';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { usePersistentState } from '../hooks/usePersistentState';
 import { formatPrice } from '../lib/currency';
 import './AdminPage.css';
 
 type AdminTab = 'products' | 'orders' | 'categories';
+const ADMIN_TABS: AdminTab[] = ['products', 'orders', 'categories'];
 const NO_CATEGORY_VALUE = 'no_category';
+const EMPTY_PRODUCT_FORM = {
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    category_id: '',
+};
+const EMPTY_CATEGORY_FORM = {
+    name: '',
+    description: '',
+};
+const EMPTY_VARIANT_FORM = {
+    size: '',
+    color: '',
+    price: '',
+    stock: '10',
+};
 
 function formatOrderDate(createdAt: string) {
     return new Date(createdAt).toLocaleString([], {
@@ -55,18 +74,19 @@ function getOrderItemCount(order: Order) {
 
 export default function AdminPage() {
     const { isAdmin, checkingAdmin, user } = useIsAdmin();
-    const [activeTab, setActiveTab] = useState<AdminTab>('products');
+    const [activeTab, setActiveTab] = usePersistentState<AdminTab>('admin.activeTab', 'products');
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Add product form
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newProduct, setNewProduct] = useState({
-        name: '', description: '', price: '', stock: '', category_id: '',
-    });
-    const [newProductVariants, setNewProductVariants] = useState<{ size: string; color: string; price: string; stock: string }[]>([]);
+    const [showAddForm, setShowAddForm, clearShowAddForm] = usePersistentState('admin.addProduct.show', false);
+    const [newProduct, setNewProduct, clearNewProduct] = usePersistentState('admin.addProduct.form', EMPTY_PRODUCT_FORM);
+    const [newProductVariants, setNewProductVariants, clearNewProductVariants] = usePersistentState<{ size: string; color: string; price: string; stock: string }[]>(
+        'admin.addProduct.variants',
+        []
+    );
     const [newProductImages, setNewProductImages] = useState<SelectedProductImageFile[]>([]);
     const [addingProduct, setAddingProduct] = useState(false);
     const [uploadingImages, setUploadingImages] = useState(false);
@@ -77,11 +97,26 @@ export default function AdminPage() {
 
     // Variant Manager (for existing products)
     const [managingVariantsId, setManagingVariantsId] = useState<string | null>(null);
-    const [newVariantEdit, setNewVariantEdit] = useState({ size: '', color: '', price: '', stock: '10' });
+    const [newVariantEdit, setNewVariantEdit, clearNewVariantEdit] = usePersistentState('admin.variant.form', EMPTY_VARIANT_FORM);
     const [addingVariant, setAddingVariant] = useState(false);
 
+    const [addingCategory, setAddingCategory] = useState(false);
+    const [newCategory, setNewCategory, clearNewCategory] = usePersistentState('admin.addCategory.form', EMPTY_CATEGORY_FORM);
+    const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+    const [editCategoryForm, setEditCategoryForm] = useState(EMPTY_CATEGORY_FORM);
+
+    useEffect(() => {
+        if (!ADMIN_TABS.includes(activeTab)) {
+            setActiveTab('products');
+        }
+    }, [activeTab, setActiveTab]);
+
     const loadData = async () => {
-        setLoading(true);
+        const shouldShowBlockingLoader =
+            products.length === 0 && categories.length === 0 && orders.length === 0;
+        if (shouldShowBlockingLoader) {
+            setLoading(true);
+        }
         try {
             const [productsResult, categoriesResult, ordersResult] = await Promise.allSettled([
                 withTimeout(getProducts(), 8000, 'Products took too long to load'),
@@ -198,10 +233,13 @@ export default function AdminPage() {
             }
 
             showToast('Product added successfully', 'success');
-            setNewProduct({ name: '', description: '', price: '', stock: '', category_id: '' });
+            setNewProduct(EMPTY_PRODUCT_FORM);
             setNewProductVariants([]);
             clearSelectedNewProductImages();
             setShowAddForm(false);
+            clearNewProduct();
+            clearNewProductVariants();
+            clearShowAddForm();
             await loadData();
         } catch (error) {
             console.error('Product Creation Error:', error);
@@ -270,7 +308,8 @@ export default function AdminPage() {
                 stock: Number.parseInt(newVariantEdit.stock, 10)
             });
             showToast('Variant added', 'success');
-            setNewVariantEdit({ size: '', color: '', price: '', stock: '10' });
+            setNewVariantEdit(EMPTY_VARIANT_FORM);
+            clearNewVariantEdit();
             await loadData();
         } catch (error) {
             showToast(getErrorMessage(error, 'Failed to add variant'), 'error');
@@ -311,7 +350,8 @@ export default function AdminPage() {
         try {
             await createCategory(newCategory.name, newCategory.description || undefined);
             showToast('Category added', 'success');
-            setNewCategory({ name: '', description: '' });
+            setNewCategory(EMPTY_CATEGORY_FORM);
+            clearNewCategory();
             await loadData();
         } catch (error) {
             showToast(getErrorMessage(error, 'Failed to add category'), 'error');
@@ -320,8 +360,53 @@ export default function AdminPage() {
         }
     };
 
-    const [addingCategory, setAddingCategory] = useState(false);
-    const [newCategory, setNewCategory] = useState({ name: '', description: '' });
+    const startCategoryEdit = (category: Category) => {
+        setEditingCategoryId(category.id);
+        setEditCategoryForm({
+            name: category.name,
+            description: category.description ?? '',
+        });
+    };
+
+    const handleSaveCategoryEdit = async (id: string) => {
+        setAddingCategory(true);
+        try {
+            await updateCategory(id, {
+                name: editCategoryForm.name,
+                description: editCategoryForm.description || null,
+            });
+            showToast('Category updated', 'success');
+            setEditingCategoryId(null);
+            await loadData();
+        } catch (error) {
+            showToast(getErrorMessage(error, 'Failed to update category'), 'error');
+        } finally {
+            setAddingCategory(false);
+        }
+    };
+
+    const handleDeleteCategory = async (id: string) => {
+        const linkedProductsCount = products.filter((product) => product.category_id === id).length;
+        const confirmationMessage = linkedProductsCount > 0
+            ? `Delete this category? ${linkedProductsCount} product(s) will become uncategorized.`
+            : 'Delete this category?';
+
+        if (!window.confirm(confirmationMessage)) return;
+
+        setAddingCategory(true);
+        try {
+            await deleteCategory(id);
+            showToast('Category deleted', 'success');
+            if (editingCategoryId === id) {
+                setEditingCategoryId(null);
+            }
+            await loadData();
+        } catch (error) {
+            showToast(getErrorMessage(error, 'Failed to delete category'), 'error');
+        } finally {
+            setAddingCategory(false);
+        }
+    };
 
     // Order status
     const handleStatusChange = async (orderId: string, status: Order['status']) => {
@@ -605,7 +690,69 @@ export default function AdminPage() {
                                 <div className="categories-list">
                                     {categories.map(cat => (
                                         <div key={cat.id} className="category-item">
-                                            <div><span className="body-sm" style={{ fontWeight: 500 }}>{cat.name}</span>{cat.description && <span className="body-sm">{cat.description}</span>}</div>
+                                            {editingCategoryId === cat.id ? (
+                                                <div className="category-edit-form">
+                                                    <input
+                                                        className="input-field"
+                                                        value={editCategoryForm.name}
+                                                        onChange={(e) => setEditCategoryForm({ ...editCategoryForm, name: e.target.value })}
+                                                        placeholder="Category name"
+                                                        required
+                                                    />
+                                                    <input
+                                                        className="input-field"
+                                                        value={editCategoryForm.description}
+                                                        onChange={(e) => setEditCategoryForm({ ...editCategoryForm, description: e.target.value })}
+                                                        placeholder="Description"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <span className="body-sm" style={{ fontWeight: 500 }}>{cat.name}</span>
+                                                    {cat.description && <span className="body-sm">{cat.description}</span>}
+                                                </div>
+                                            )}
+                                            <div className="admin-actions">
+                                                {editingCategoryId === cat.id ? (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-primary"
+                                                            onClick={() => handleSaveCategoryEdit(cat.id)}
+                                                            disabled={addingCategory}
+                                                        >
+                                                            <Save size={14} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-ghost"
+                                                            onClick={() => setEditingCategoryId(null)}
+                                                            disabled={addingCategory}
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-ghost"
+                                                            onClick={() => startCategoryEdit(cat)}
+                                                            disabled={addingCategory}
+                                                        >
+                                                            <Edit3 size={14} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger"
+                                                            onClick={() => handleDeleteCategory(cat.id)}
+                                                            disabled={addingCategory}
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
