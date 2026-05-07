@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import type { Category } from './products';
-import { readCachedValue, writeCachedValue } from './cache';
+import { clearCachedValue, readCachedValue, writeCachedValue } from './cache';
 export type { Category } from './products';
 
 export async function getCategories() {
@@ -29,6 +29,7 @@ export async function createCategory(name: string, description?: string) {
         .single();
 
     if (error) throw error;
+    clearCachedValue('categories');
     return data as Category;
 }
 
@@ -47,6 +48,7 @@ export async function updateCategory(
         .single();
 
     if (error) throw error;
+    clearCachedValue('categories');
     return data as Category;
 }
 
@@ -60,4 +62,5 @@ export async function deleteCategory(id: string) {
 
     const { error } = await supabase.from('categories').delete().eq('id', id);
     if (error) throw error;
+    clearCachedValue('categories');
 }

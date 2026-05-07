@@ -50,3 +50,15 @@ export function writeCachedValue<T>(key: string, data: T) {
         // Ignore storage quota issues.
     }
 }
+
+export function clearCachedValue(key: string) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    try {
+        window.sessionStorage.removeItem(getStorageKey(key));
+    } catch {
+        // Ignore storage access issues.
+    }
+}

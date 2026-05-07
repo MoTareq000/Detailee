@@ -9,6 +9,7 @@ import { withTimeout } from '../lib/async';
 import { formatPrice } from '../lib/currency';
 import ProductCard from '../components/ProductCard';
 import { useWishlist } from '../contexts/useWishlist';
+import { getErrorMessage } from '../lib/errors';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -85,8 +86,8 @@ export default function DashboardPage() {
             );
             await refreshProfile();
             showToast('Profile updated', 'success');
-        } catch {
-            showToast('Failed to update profile', 'error');
+        } catch (error) {
+            showToast(getErrorMessage(error, 'Failed to update profile'), 'error');
         } finally {
             setSaving(false);
         }

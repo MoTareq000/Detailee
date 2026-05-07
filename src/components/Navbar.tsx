@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, LogOut, LayoutDashboard, Heart } from 'lucide-react';
+import { ShoppingCart, User, LogOut, LayoutDashboard, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
 import { useIsAdmin } from '../hooks/useIsAdmin';
@@ -10,7 +10,6 @@ import { showToast } from './toastStore';
 import './Navbar.css';
 
 export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const { user, profile, signOut } = useAuth();
     const { isAdmin } = useIsAdmin();
@@ -73,6 +72,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
 
                     {/* Cart Button */}
                     <button
+                        type="button"
                         className="navbar-cart btn-icon"
                         onClick={onCartClick}
                         id="cart-button"
@@ -86,6 +86,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                     {user ? (
                         <div className="profile-menu-wrapper">
                             <button
+                                type="button"
                                 className="navbar-avatar btn-icon"
                                 onClick={() => setProfileOpen(!profileOpen)}
                                 id="profile-button"
@@ -94,10 +95,16 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                             </button>
                             {profileOpen && (
                                 <div className="profile-dropdown glass" id="profile-dropdown">
-                                    <div className="profile-dropdown-header">
+                                    <Link
+                                        to="/dashboard"
+                                        className="profile-dropdown-header profile-dropdown-header-link"
+                                        onClick={() => setProfileOpen(false)}
+                                        title="Open profile"
+                                    >
                                         <span className="body-sm">{profile?.full_name || user.email}</span>
                                         <span className="label-sm">{profile?.role}</span>
-                                    </div>
+                                        <span className="profile-dropdown-header-cta">View Profile</span>
+                                    </Link>
                                     <Link
                                         to="/dashboard"
                                         className="profile-dropdown-item"
@@ -116,7 +123,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                                             Admin Panel
                                         </Link>
                                     )}
-                                    <button className="profile-dropdown-item" onClick={handleSignOut}>
+                                    <button type="button" className="profile-dropdown-item" onClick={handleSignOut}>
                                         <LogOut size={16} />
                                         Sign Out
                                     </button>
@@ -129,51 +136,8 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                         </Link>
                     )}
 
-                    {/* Mobile Menu Toggle */}
-                    <button
-                        className="navbar-hamburger btn-icon"
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        id="mobile-menu-button"
-                        aria-label="Toggle menu"
-                    >
-                        {menuOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
                 </div>
             </div>
-
-            {/* Mobile Menu */}
-            {menuOpen && (
-                <div className="mobile-menu glass" id="mobile-menu">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.to}
-                            to={link.to}
-                            className={`mobile-menu-link ${location.pathname === link.to ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            {link.label}
-                        </Link>
-                    ))}
-                    {!user && (
-                        <Link
-                            to="/login"
-                            className="mobile-menu-link"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Sign In
-                        </Link>
-                    )}
-                    {user && (
-                        <Link
-                            to="/dashboard"
-                            className={`mobile-menu-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Wishlist
-                        </Link>
-                    )}
-                </div>
-            )}
         </nav>
     );
 }
