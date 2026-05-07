@@ -35,13 +35,14 @@ export async function createCategory(name: string, description?: string) {
 
 export async function updateCategory(
     id: string,
-    updates: { name: string; description?: string | null }
+    updates: { name: string; description?: string | null; image_url?: string | null }
 ) {
     const { data, error } = await supabase
         .from('categories')
         .update({
             name: updates.name,
             description: updates.description ?? null,
+            image_url: updates.image_url ?? null,
         })
         .eq('id', id)
         .select()

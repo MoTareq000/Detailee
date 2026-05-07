@@ -21,6 +21,7 @@ import {
 import { getCategories, createCategory, updateCategory, deleteCategory, type Category } from '../lib/categories';
 import { getAllOrders, updateOrderStatus, type Order, deleteOrder } from '../lib/orders';
 import { uploadProductImageFiles } from '../lib/productImageUpload';
+import { deleteCategoryImageByUrl, uploadCategoryImage } from '../lib/categoryImageUpload';
 import { showToast } from '../components/toastStore';
 import { withTimeout } from '../lib/async';
 import { getErrorMessage } from '../lib/errors';
@@ -42,6 +43,7 @@ const EMPTY_PRODUCT_FORM = {
 const EMPTY_CATEGORY_FORM = {
     name: '',
     description: '',
+    image_url: '',
 };
 const EMPTY_VARIANT_FORM = {
     size: '',
@@ -104,6 +106,8 @@ export default function AdminPage() {
     const [newCategory, setNewCategory, clearNewCategory] = usePersistentState('admin.addCategory.form', EMPTY_CATEGORY_FORM);
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
     const [editCategoryForm, setEditCategoryForm] = useState(EMPTY_CATEGORY_FORM);
+    const [newCategoryImageFile, setNewCategoryImageFile] = useState<File | null>(null);
+    const [editCategoryImageFile, setEditCategoryImageFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (!ADMIN_TABS.includes(activeTab)) {
@@ -348,9 +352,20 @@ export default function AdminPage() {
         e.preventDefault();
         setAddingCategory(true);
         try {
-            await createCategory(newCategory.name, newCategory.description || undefined);
+            const createdCategory = await createCategory(newCategory.name, newCategory.description || undefined);
+
+            if (newCategoryImageFile) {
+                const imageUrl = await uploadCategoryImage(createdCategory.id, newCategoryImageFile);
+                await updateCategory(createdCategory.id, {
+                    name: createdCategory.name,
+                    description: createdCategory.description,
+                    image_url: imageUrl,
+                });
+            }
+
             showToast('Category added', 'success');
             setNewCategory(EMPTY_CATEGORY_FORM);
+            setNewCategoryImageFile(null);
             clearNewCategory();
             await loadData();
         } catch (error) {
@@ -365,18 +380,32 @@ export default function AdminPage() {
         setEditCategoryForm({
             name: category.name,
             description: category.description ?? '',
+            image_url: category.image_url ?? '',
         });
+        setEditCategoryImageFile(null);
     };
 
     const handleSaveCategoryEdit = async (id: string) => {
         setAddingCategory(true);
         try {
+            let nextImageUrl = editCategoryForm.image_url || null;
+
+            if (editCategoryImageFile) {
+                const uploadedImageUrl = await uploadCategoryImage(id, editCategoryImageFile);
+                if (nextImageUrl) {
+                    await deleteCategoryImageByUrl(nextImageUrl);
+                }
+                nextImageUrl = uploadedImageUrl;
+            }
+
             await updateCategory(id, {
                 name: editCategoryForm.name,
                 description: editCategoryForm.description || null,
+                image_url: nextImageUrl,
             });
             showToast('Category updated', 'success');
             setEditingCategoryId(null);
+            setEditCategoryImageFile(null);
             await loadData();
         } catch (error) {
             showToast(getErrorMessage(error, 'Failed to update category'), 'error');
@@ -386,6 +415,7 @@ export default function AdminPage() {
     };
 
     const handleDeleteCategory = async (id: string) => {
+        const category = categories.find((item) => item.id === id);
         const linkedProductsCount = products.filter((product) => product.category_id === id).length;
         const confirmationMessage = linkedProductsCount > 0
             ? `Delete this category? ${linkedProductsCount} product(s) will become uncategorized.`
@@ -395,6 +425,9 @@ export default function AdminPage() {
 
         setAddingCategory(true);
         try {
+            if (category?.image_url) {
+                await deleteCategoryImageByUrl(category.image_url);
+            }
             await deleteCategory(id);
             showToast('Category deleted', 'success');
             if (editingCategoryId === id) {
@@ -403,6 +436,29 @@ export default function AdminPage() {
             await loadData();
         } catch (error) {
             showToast(getErrorMessage(error, 'Failed to delete category'), 'error');
+        } finally {
+            setAddingCategory(false);
+        }
+    };
+
+    const handleRemoveCategoryImage = async (category: Category) => {
+        if (!category.image_url) return;
+        setAddingCategory(true);
+        try {
+            await deleteCategoryImageByUrl(category.image_url);
+            await updateCategory(category.id, {
+                name: category.name,
+                description: category.description,
+                image_url: null,
+            });
+            showToast('Category image removed', 'success');
+            if (editingCategoryId === category.id) {
+                setEditCategoryForm((current) => ({ ...current, image_url: '' }));
+                setEditCategoryImageFile(null);
+            }
+            await loadData();
+        } catch (error) {
+            showToast(getErrorMessage(error, 'Failed to remove category image'), 'error');
         } finally {
             setAddingCategory(false);
         }
@@ -685,6 +741,15 @@ export default function AdminPage() {
                                         <div className="input-group"><label>Category Name *</label><input className="input-field" value={newCategory.name} onChange={e => setNewCategory({...newCategory, name:e.target.value})} required /></div>
                                         <div className="input-group"><label>Description</label><input className="input-field" value={newCategory.description} onChange={e => setNewCategory({...newCategory, description:e.target.value})} /></div>
                                     </div>
+                                    <div className="input-group">
+                                        <label>Category Photo</label>
+                                        <input
+                                            className="input-field"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(event) => setNewCategoryImageFile(event.target.files?.[0] ?? null)}
+                                        />
+                                    </div>
                                     <button type="submit" className="btn btn-primary" disabled={addingCategory}><Plus size={16} /> {addingCategory ? 'Adding...' : 'Add'}</button>
                                 </form>
                                 <div className="categories-list">
@@ -705,9 +770,29 @@ export default function AdminPage() {
                                                         onChange={(e) => setEditCategoryForm({ ...editCategoryForm, description: e.target.value })}
                                                         placeholder="Description"
                                                     />
+                                                    <input
+                                                        className="input-field"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(event) => setEditCategoryImageFile(event.target.files?.[0] ?? null)}
+                                                    />
+                                                    {editCategoryForm.image_url && !editCategoryImageFile && (
+                                                        <img
+                                                            src={editCategoryForm.image_url}
+                                                            alt={`${cat.name} category`}
+                                                            className="category-thumb"
+                                                        />
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div>
+                                                    {cat.image_url && (
+                                                        <img
+                                                            src={cat.image_url}
+                                                            alt={`${cat.name} category`}
+                                                            className="category-thumb"
+                                                        />
+                                                    )}
                                                     <span className="body-sm" style={{ fontWeight: 500 }}>{cat.name}</span>
                                                     {cat.description && <span className="body-sm">{cat.description}</span>}
                                                 </div>
@@ -734,6 +819,17 @@ export default function AdminPage() {
                                                     </>
                                                 ) : (
                                                     <>
+                                                        {cat.image_url && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-ghost"
+                                                                onClick={() => handleRemoveCategoryImage(cat)}
+                                                                disabled={addingCategory}
+                                                                title="Remove category image"
+                                                            >
+                                                                <X size={14} />
+                                                            </button>
+                                                        )}
                                                         <button
                                                             type="button"
                                                             className="btn btn-sm btn-ghost"

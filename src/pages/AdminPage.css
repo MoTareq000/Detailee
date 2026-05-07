@@ -305,6 +305,16 @@
     gap: var(--space-1);
 }
 
+.category-thumb {
+    width: 92px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(236, 243, 234, 0.14);
+    margin-bottom: var(--space-2);
+    background: var(--surface-container);
+}
+
 .category-edit-form {
     display: flex;
     flex-direction: column;

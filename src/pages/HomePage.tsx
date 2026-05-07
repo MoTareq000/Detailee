@@ -197,6 +197,15 @@ export default function HomePage() {
                                     to={`/shop?category=${cat.id}`}
                                     className="category-card"
                                 >
+                                    {cat.image_url && (
+                                        <div className="category-card-image-wrap">
+                                            <img
+                                                src={cat.image_url}
+                                                alt={cat.name}
+                                                className="category-card-image"
+                                            />
+                                        </div>
+                                    )}
                                     <h3 className="headline-sm">{cat.name}</h3>
                                     {cat.description && (
                                         <p className="body-sm">{cat.description}</p>
