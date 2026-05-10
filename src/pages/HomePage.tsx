@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Layers, Zap, Shield } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import ProductCard from '../components/ProductCard';
 import { getProducts, type Product } from '../lib/products';
