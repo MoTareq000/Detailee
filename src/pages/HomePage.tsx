@@ -65,6 +65,7 @@ export default function HomePage() {
 
     return (
         <div className="home-page" id="home-page">
+
             {/* Hero Section */}
             <section className="hero" id="hero-section">
                 <div className="hero-glow" />
@@ -103,45 +104,38 @@ export default function HomePage() {
                         </div>
                     </div>
                 </div>
-            </section>
 
-            {/* Features */}
-            <section className="features section" id="features-section">
-                <div className="container">
-                    <div className="features-grid stagger">
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <Layers size={24} />
-                            </div>
-                            <h3 className="headline-sm">Layer-by-Layer</h3>
-                            <p className="body-sm">
-                                Every figure is printed at 0.05mm resolution for unparalleled detail
-                                and surface finish.
-                            </p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <Zap size={24} />
-                            </div>
-                            <h3 className="headline-sm">Engineered Design</h3>
-                            <p className="body-sm">
-                                Digital sculpting meets industrial precision. Each model is optimized
-                                for structural integrity.
-                            </p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <Shield size={24} />
-                            </div>
-                            <h3 className="headline-sm">Premium Materials</h3>
-                            <p className="body-sm">
-                                We use high-grade PLA and resin materials that ensure durability and
-                                a flawless matte finish.
-                            </p>
+                {/* Categories inline inside Hero to fit on first page */}
+                {categories.length > 0 && (
+                    <div className="hero-categories-container container animate-fade-in-up" style={{ animationDelay: '0.6s', paddingBottom: 'var(--space-8)' }}>
+                        <div className="categories-grid stagger">
+                            {categories.map((cat) => (
+                                <Link
+                                    key={cat.id}
+                                    to={`/shop?category=${cat.id}`}
+                                    className="category-card"
+                                >
+                                    {cat.image_url && (
+                                        <div className="category-card-image-wrap">
+                                            <img
+                                                src={cat.image_url}
+                                                alt={cat.name}
+                                                className="category-card-image"
+                                            />
+                                        </div>
+                                    )}
+                                    <h3 className="headline-sm">{cat.name}</h3>
+                                    {cat.description && (
+                                        <p className="body-sm">{cat.description}</p>
+                                    )}
+                                    <ArrowRight size={18} className="category-arrow" />
+                                </Link>
+                            ))}
                         </div>
                     </div>
-                </div>
+                )}
             </section>
+
 
             {/* Featured Products */}
             <section className="featured section" id="featured-section">
@@ -180,43 +174,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Categories */}
-            {categories.length > 0 && (
-                <section className="categories-section section" id="categories-section">
-                    <div className="container">
-                        <div className="section-header">
-                            <div>
-                                <span className="label-md" style={{ color: 'var(--primary)' }}>Browse</span>
-                                <h2 className="display-md">Categories</h2>
-                            </div>
-                        </div>
-                        <div className="categories-grid stagger">
-                            {categories.map((cat) => (
-                                <Link
-                                    key={cat.id}
-                                    to={`/shop?category=${cat.id}`}
-                                    className="category-card"
-                                >
-                                    {cat.image_url && (
-                                        <div className="category-card-image-wrap">
-                                            <img
-                                                src={cat.image_url}
-                                                alt={cat.name}
-                                                className="category-card-image"
-                                            />
-                                        </div>
-                                    )}
-                                    <h3 className="headline-sm">{cat.name}</h3>
-                                    {cat.description && (
-                                        <p className="body-sm">{cat.description}</p>
-                                    )}
-                                    <ArrowRight size={18} className="category-arrow" />
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
 
             {/* CTA */}
             {!user && (
